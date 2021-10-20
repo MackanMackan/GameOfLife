@@ -6,7 +6,7 @@ public class GameOfLife : ProcessingLite.GP21
     int numberOfColums;
     int numberOfRows;
     int spawnChancePercentage = 15;
-
+    bool startGame = false;
     GameCell[,] newCells;
 
     void Start()
@@ -35,10 +35,10 @@ public class GameOfLife : ProcessingLite.GP21
                 cells[x, y] = new GameCell(x * cellSize, y * cellSize, cellSize);
                 newCells[x, y] = new GameCell(x * cellSize, y * cellSize, cellSize);
                 //Random check to see if it should be alive
-                if (Random.Range(0, 100) < spawnChancePercentage)
-                {
-                    cells[x, y].alive = true;
-                }
+                //if (Random.Range(0, 100) < spawnChancePercentage)
+                //{
+                //    cells[x, y].alive = true;
+                //}
             }
         }
     }
@@ -48,12 +48,30 @@ public class GameOfLife : ProcessingLite.GP21
         //Clear screen
         Background(0);
 
-        //TODO: Calculate next generation
-        calculateNewCells();
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            startGame = true;
+        }
+        if (startGame)
+        {
+            //Calculate next generation
+            CalculateNewCells();
 
-        //TODO: update buffer
-        updateNewCells();
+            //Update buffer
+            UpdateNewCells();
 
+        }
+        else
+        {
+            for (int y = 0; y < numberOfRows; ++y)
+            {
+                for (int x = 0; x < numberOfColums; ++x)
+                {
+                    //Draw current cell
+                    cells[x, y].DrawOnMouseHover(cellSize);
+                }
+            }
+        }
         //Draw all cells.
         for (int y = 0; y < numberOfRows; ++y)
         {
@@ -65,7 +83,7 @@ public class GameOfLife : ProcessingLite.GP21
         }
     }
 
-    void calculateNewCells()
+    void CalculateNewCells()
     {
         int amountOfAlivePartners = 0;
 
@@ -75,7 +93,7 @@ public class GameOfLife : ProcessingLite.GP21
             {
                 if (cells[x, y].alive)
                 {
-                    amountOfAlivePartners = scanAroundCell(x, y);
+                    amountOfAlivePartners = ScanAroundCell(x, y);
                     if (amountOfAlivePartners < 2)
                     {
                         newCells[x, y].alive = false;
@@ -95,7 +113,7 @@ public class GameOfLife : ProcessingLite.GP21
                 else
                 {
 
-                    amountOfAlivePartners = scanAroundCell(x, y);
+                    amountOfAlivePartners = ScanAroundCell(x, y);
                     if (amountOfAlivePartners == 3)
                     {
                         newCells[x, y].alive = true;
@@ -105,7 +123,7 @@ public class GameOfLife : ProcessingLite.GP21
         }
     }
 
-    int scanAroundCell(int xCell, int yCell)
+    int ScanAroundCell(int xCell, int yCell)
     {
         int amountOfAlivePartners = 0;
 
@@ -136,7 +154,7 @@ public class GameOfLife : ProcessingLite.GP21
         return amountOfAlivePartners;
     }
 
-    void updateNewCells()
+    void UpdateNewCells()
     {
         for (int y = 0; y < numberOfRows; ++y)
         {
@@ -200,5 +218,23 @@ public class GameCell : ProcessingLite.GP21
             }
         }
 
+    }
+    public void DrawOnMouseHover(float cellSize)
+    {
+        float mouseX = MouseX;
+        float mouseY = MouseY;
+        cellSize = cellSize / 2;
+        //check mouse pos is within the cells position, in a box
+        if (mouseX > x - cellSize && mouseX < x + cellSize && mouseY > y - cellSize && mouseY < y + cellSize)
+        {
+            Fill(255, 255, 255);
+            Stroke(255, 255, 255);
+            Circle(x, y, size);
+
+            if (Input.GetMouseButton(0))
+            {
+                alive = true;
+            }
+        }
     }
 }
