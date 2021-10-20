@@ -8,7 +8,10 @@ public class GameOfLife : ProcessingLite.GP21
     int numberOfRows;
     bool startGame = false;
     int generations;
+    int simulationSpeed;
     public Text generationsText;
+    public Text simulationSpeedText;
+    public Slider simulationSpeedSlider;
     GameCell[,] newCells;
 
     void Start()
@@ -16,7 +19,8 @@ public class GameOfLife : ProcessingLite.GP21
         //Lower framerate makes it easier to test and see whats happening.
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 20;
-
+        simulationSpeed = Application.targetFrameRate;
+        simulationSpeedSlider.value = simulationSpeed;
         //Calculate our grid depending on size and cellSize
         numberOfColums = (int)Mathf.Floor(Width / cellSize);
         numberOfRows = (int)Mathf.Floor(Height / cellSize);
@@ -78,6 +82,7 @@ public class GameOfLife : ProcessingLite.GP21
                 cells[x, y].Draw();
             }
         }
+        ChangeSimulationSpeed();
     }
 
     void CalculateNewCells()
@@ -91,7 +96,7 @@ public class GameOfLife : ProcessingLite.GP21
                 if (cells[x, y].alive)
                 {
                     amountOfAlivePartners = ScanAroundCell(x, y);
-                    if (amountOfAlivePartners < 2)
+                    if (amountOfAlivePartners < 2 || amountOfAlivePartners > 3)
                     {
                         newCells[x, y].alive = false;
                         newCells[x, y].recentlyDied = true;
@@ -100,14 +105,7 @@ public class GameOfLife : ProcessingLite.GP21
                     {
                         newCells[x, y].alive = true;
                     }
-                    else if (amountOfAlivePartners > 3)
-                    {
-                        newCells[x, y].alive = false;
-                        newCells[x, y].recentlyDied = true;
-                    }
-                }
-
-                else
+                }else
                 {
 
                     amountOfAlivePartners = ScanAroundCell(x, y);
@@ -168,6 +166,11 @@ public class GameOfLife : ProcessingLite.GP21
     {
         generations++;
         generationsText.text = "Generations: " + generations;
+    }
+    void ChangeSimulationSpeed()
+    {
+        simulationSpeedText.text = "Simulation Speed: " + Application.targetFrameRate;
+        Application.targetFrameRate = (int)simulationSpeedSlider.value;
     }
 }
 //You will probebly need to keep track of more things in this class
