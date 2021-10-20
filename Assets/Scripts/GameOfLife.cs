@@ -13,7 +13,7 @@ public class GameOfLife : ProcessingLite.GP21
     {
         //Lower framerate makes it easier to test and see whats happening.
         QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = 2;
+        Application.targetFrameRate = 20;
 
         //Calculate our grid depending on size and cellSize
         numberOfColums = (int)Mathf.Floor(Width / cellSize);
@@ -68,7 +68,7 @@ public class GameOfLife : ProcessingLite.GP21
     void calculateNewCells()
     {
         int amountOfAlivePartners = 0;
-        
+
         for (int y = 0; y < numberOfRows; ++y)
         {
             for (int x = 0; x < numberOfColums; ++x)
@@ -78,29 +78,27 @@ public class GameOfLife : ProcessingLite.GP21
                     amountOfAlivePartners = scanAroundCell(x, y);
                     if (amountOfAlivePartners < 2)
                     {
-                        newCells[x,y].alive = false;
+                        newCells[x, y].alive = false;
                         newCells[x, y].recentlyDied = true;
                     }
                     else if (amountOfAlivePartners == 2 || amountOfAlivePartners == 3)
                     {
-                        newCells[x,y].alive = true;
-                        newCells[x, y].recentlyDied = false;
+                        newCells[x, y].alive = true;
                     }
                     else if (amountOfAlivePartners > 3)
                     {
-                        newCells[x,y].alive = false;
+                        newCells[x, y].alive = false;
                         newCells[x, y].recentlyDied = true;
                     }
                 }
 
-                if (!cells[x, y].alive)
+                else
                 {
-                        
+
                     amountOfAlivePartners = scanAroundCell(x, y);
                     if (amountOfAlivePartners == 3)
                     {
-                        newCells[x,y].alive = true;
-                        newCells[x, y].recentlyDied = false;
+                        newCells[x, y].alive = true;
                     }
                 }
             }
@@ -113,13 +111,13 @@ public class GameOfLife : ProcessingLite.GP21
 
         for (int x = -1; x < 2; x++)
         {
-            if (xCell + x < 0 || xCell + x > numberOfColums-1)
+            if (xCell + x < 0 || xCell + x > numberOfColums - 1)
             {
                 continue;
             }
             for (int y = -1; y < 2; y++)
             {
-                if (yCell + y < 0 || yCell + y > numberOfRows-1)
+                if (yCell + y < 0 || yCell + y > numberOfRows - 1)
                 {
                     continue;
                 }
@@ -144,8 +142,8 @@ public class GameOfLife : ProcessingLite.GP21
         {
             for (int x = 0; x < numberOfColums; ++x)
             {
-                cells[x, y].alive = newCells[x,y].alive;
-                cells[x, y].recentlyDied = newCells[x,y].recentlyDied;
+                cells[x, y].alive = newCells[x, y].alive;
+                cells[x, y].recentlyDied = newCells[x, y].recentlyDied;
 
             }
         }
@@ -183,28 +181,24 @@ public class GameCell : ProcessingLite.GP21
             //draw our dots
             Circle(x, y, size);
             alphaCount = 255;
-        }else if (recentlyDied)
-        {
-            DecayDeadCell();
         }
-    }
-    public void DecayDeadCell()
-    {
-        
-        
-        float timeCount = 0;
-        for (float i = 6; i > 0; i--)
+        else
         {
-            timeCount += Time.deltaTime;
-            if (timeCount >= 1)
+            if (recentlyDied)
             {
                 alphaCount -= 40;
-                timeCount = 0;
+
+                if (alphaCount <= 0)
+                {
+                    recentlyDied = false;
+                    alphaCount = 0;
+                }
+
+                Fill(255, 0, 0, alphaCount);
+                Stroke(255, 0, 0, alphaCount);
+                Circle(x, y, size);
             }
-            Mathf.Clamp(alphaCount, 0, 255);
         }
-            Fill(255, 0, 0, alphaCount);
-            Stroke(255, 0, 0, alphaCount);
-            Circle(x, y, size);
+
     }
 }
