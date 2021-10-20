@@ -1,12 +1,14 @@
 using UnityEngine;
+using UnityEngine.UI;
 public class GameOfLife : ProcessingLite.GP21
 {
     GameCell[,] cells; //Our game grid matrix
     float cellSize = 0.25f; //Size of our cells
     int numberOfColums;
     int numberOfRows;
-    int spawnChancePercentage = 15;
     bool startGame = false;
+    int generations;
+    public Text generationsText;
     GameCell[,] newCells;
 
     void Start()
@@ -34,11 +36,6 @@ public class GameOfLife : ProcessingLite.GP21
                 //Create our game cell objects, multiply by cellSize for correct world placement
                 cells[x, y] = new GameCell(x * cellSize, y * cellSize, cellSize);
                 newCells[x, y] = new GameCell(x * cellSize, y * cellSize, cellSize);
-                //Random check to see if it should be alive
-                //if (Random.Range(0, 100) < spawnChancePercentage)
-                //{
-                //    cells[x, y].alive = true;
-                //}
             }
         }
     }
@@ -117,6 +114,7 @@ public class GameOfLife : ProcessingLite.GP21
                     if (amountOfAlivePartners == 3)
                     {
                         newCells[x, y].alive = true;
+                        UpdateAndDrawGenereationsText();
                     }
                 }
             }
@@ -165,6 +163,11 @@ public class GameOfLife : ProcessingLite.GP21
 
             }
         }
+    }
+    void UpdateAndDrawGenereationsText()
+    {
+        generations++;
+        generationsText.text = "Generations: " + generations;
     }
 }
 //You will probebly need to keep track of more things in this class
