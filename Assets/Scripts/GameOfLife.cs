@@ -3,17 +3,25 @@ using UnityEngine.UI;
 public class GameOfLife : ProcessingLite.GP21
 {
     GameCell[,] cells; //Our game grid matrix
-    float cellSize = 0.25f; //Size of our cells
+    GameCell[,] newCells;
+
+    float cellSize = 0.15f; //Size of our cells
     int numberOfColums;
     int numberOfRows;
+
     bool startGame = false;
     int generations;
     int simulationSpeed;
+
     public Text generationsText;
     public Text simulationSpeedText;
     public Slider simulationSpeedSlider;
-    GameCell[,] newCells;
 
+    //Image input
+    public Texture2D imageToGenerate;
+    int imgWidth;
+    int imgHeight;
+    bool generationComplete = false;
     void Start()
     {
         //Lower framerate makes it easier to test and see whats happening.
@@ -24,6 +32,9 @@ public class GameOfLife : ProcessingLite.GP21
         //Calculate our grid depending on size and cellSize
         numberOfColums = (int)Mathf.Floor(Width / cellSize);
         numberOfRows = (int)Mathf.Floor(Height / cellSize);
+        //Get widht and height of img
+        imgWidth = imageToGenerate.width;
+        imgHeight = imageToGenerate.height;
 
         //Initiate our matrix array
         cells = new GameCell[numberOfColums, numberOfRows];
@@ -48,7 +59,12 @@ public class GameOfLife : ProcessingLite.GP21
     {
         //Clear screen
         Background(0);
-
+        //Generate cell base on image
+        if (!generationComplete)
+        {
+            CreateCellsByImage(imageToGenerate, imgWidth, imgHeight);
+            generationComplete = true;
+        }
         if (Input.GetKeyDown(KeyCode.Return))
         {
             startGame = true;
@@ -68,7 +84,7 @@ public class GameOfLife : ProcessingLite.GP21
             {
                 for (int x = 0; x < numberOfColums; ++x)
                 {
-                    //Draw current cell
+                    //Draw current cell if mouse is over it
                     cells[x, y].DrawOnMouseHover(cellSize);
                 }
             }
@@ -105,7 +121,8 @@ public class GameOfLife : ProcessingLite.GP21
                     {
                         newCells[x, y].alive = true;
                     }
-                }else
+                }
+                else
                 {
 
                     amountOfAlivePartners = ScanAroundCell(x, y);
@@ -122,7 +139,7 @@ public class GameOfLife : ProcessingLite.GP21
     int ScanAroundCell(int xCell, int yCell)
     {
         int amountOfAlivePartners = 0;
-
+        //check around the cell for alive partners
         for (int x = -1; x < 2; x++)
         {
             if (xCell + x < 0 || xCell + x > numberOfColums - 1)
@@ -172,6 +189,29 @@ public class GameOfLife : ProcessingLite.GP21
         simulationSpeedText.text = "Simulation Speed: " + Application.targetFrameRate;
         Application.targetFrameRate = (int)simulationSpeedSlider.value;
     }
+    public void CreateCellsByImage(Texture2D imageToGenerate, int imgWidth, int imgHeight)
+    {
+        for (int pixelX = 0; pixelX <= imgWidth; pixelX++)
+        {
+            for (int pixelY = 0; pixelY <= imgHeight; pixelY++)
+            {
+                if (imageToGenerate.GetPixel(pixelX, pixelY) == Color.white)
+                {
+                    for (int y = 0; y < numberOfRows; ++y)
+                    {
+                        for (int x = 0; x < numberOfColums; ++x)
+                        {
+                            if (pixelX * cellSize > x - cellSize && pixelX * cellSize < x + cellSize
+                                && pixelY * cellSize > y - cellSize && pixelY * cellSize < y + cellSize)
+                            {
+                                cells[x, y].alive = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 //You will probebly need to keep track of more things in this class
 public class GameCell : ProcessingLite.GP21
@@ -179,6 +219,7 @@ public class GameCell : ProcessingLite.GP21
     public float x, y; //Keep track of our position
     float size; //our size
     int alphaCount = 255;
+    //If we recently died, will fade away
     public bool recentlyDied = false;
     //Keep track if we are alive
     public bool alive = false;
@@ -243,4 +284,5 @@ public class GameCell : ProcessingLite.GP21
             }
         }
     }
+
 }

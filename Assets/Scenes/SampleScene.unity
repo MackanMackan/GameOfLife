@@ -371,6 +371,7 @@ MonoBehaviour:
   generationsText: {fileID: 778500534}
   simulationSpeedText: {fileID: 1940372022}
   simulationSpeedSlider: {fileID: 1992633520}
+  imageToGenerate: {fileID: 2800000, guid: 5807b442ba5da2a459484768783ad237, type: 3}
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
